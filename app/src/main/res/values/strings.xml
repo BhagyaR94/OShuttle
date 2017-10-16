@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">OShuttle</string>
+    <string name="title_activity_map_view">Map</string>
+    <string name="title_activity_navigation_view">Map</string>
+</resources>

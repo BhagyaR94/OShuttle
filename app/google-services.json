@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "472737598970",
+    "firebase_url": "https://oshuttle-93c81.firebaseio.com",
+    "project_id": "oshuttle-93c81",
+    "storage_bucket": "oshuttle-93c81.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:472737598970:android:c1effb47ef562e7c",
+        "android_client_info": {
+          "package_name": "com.example.bhagyar.oshuttle"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "472737598970-ink73com6ipbe64h3917dv115hhbk905.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.bhagyar.oshuttle",
+            "certificate_hash": "228069d7af164e2627075fb2b5dd1d171eb86067"
+          }
+        },
+        {
+          "client_id": "472737598970-i0nqpkov2s7tvmsoehoqr34vacr9im2f.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD9-PfJeikMoRTcEIBEhyvH4TmRjtYO8KA"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "472737598970-i0nqpkov2s7tvmsoehoqr34vacr9im2f.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
