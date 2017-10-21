@@ -1,9 +1,9 @@
 package business_modules.map_view;
 
 import android.Manifest;
+import android.app.Service;
 import android.content.Context;
 import android.content.pm.PackageManager;
-import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -20,16 +20,13 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.GroundOverlayOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.firebase.FirebaseApp;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.storage.FirebaseStorage;
+
 
 public class MapViewActivity extends FragmentActivity
         implements
@@ -38,15 +35,20 @@ public class MapViewActivity extends FragmentActivity
     private GoogleMap mMap;
     private LocationManager locationManager;
     private FloatingActionButton btnUserLocation, btnBusLocation;
-    private double latitude, longitude;
+    private double latitude, longitude, factoryLatitude, factoryLogtitude;
     private LatLng currentLocation;
-    TelephonyManager telephonyManager;
+    private LatLng factoryLocation;
+    private TelephonyManager telephonyManager;
+    private float[] results;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_map_view);
+        factoryLatitude = 6.868651663190283;
+        factoryLogtitude = 80.06198644888059;
+        factoryLocation = new LatLng(factoryLatitude, factoryLogtitude);
         telephonyManager = (TelephonyManager) getSystemService(Context.
                 TELEPHONY_SERVICE);
         final String deviceId = telephonyManager.getSubscriberId();
@@ -84,12 +86,16 @@ public class MapViewActivity extends FragmentActivity
                 latitude = location.getLatitude();
                 longitude = location.getLongitude();
                 LatLng currentLocation = new LatLng(latitude, longitude);
+                results = new float[1];
+                Location.distanceBetween(currentLocation.latitude, currentLocation.longitude,
+                        factoryLocation.latitude, factoryLocation.longitude,
+                        results);
                 mMap.clear();
                 mMap.setTrafficEnabled(true);
                 Marker marker = mMap.addMarker(new MarkerOptions()
                         .position(currentLocation)
-                        .title("You Are Here")
-                        .snippet("You Location is Visible to AKOYA")
+                        .title("This Is You")
+                        .snippet("Approximately " + (results[0] / 1000) + " km s Straight Away from the OREL ZONE")
                         .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_person_pin_circle_green_600_24dp))
                 );
                 marker.showInfoWindow();
@@ -138,4 +144,20 @@ public class MapViewActivity extends FragmentActivity
         );
     }
 
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (FirebaseDatabase.getInstance() != null) {
+            FirebaseDatabase.getInstance().goOffline();
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (FirebaseDatabase.getInstance() != null) {
+            FirebaseDatabase.getInstance().goOnline();
+        }
+    }
 }

@@ -14,6 +14,7 @@ public class AppConstance {
     static String INFORMATION = "INFORMATION";
     static String DEBUG = "DEBUG";
     static String VERBOSE = "VERBOSE";
+    static boolean GPS_STATE=false;
 
     public static String SHAREDPREFERENCES_USER_ID = "user_id";
     public static String appDbLocation =  "/data/com.orangeit.core.app/databases/"+ DatabaseHelperORM.DATABASE_NAME;
