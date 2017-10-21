@@ -7,15 +7,22 @@ import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.View;
+import android.widget.Toast;
 
 import com.example.bhagyar.oshuttle.R;
 import com.github.clans.fab.FloatingActionButton;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.Api;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.PendingResult;
+import com.google.android.gms.common.api.Status;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -27,6 +34,8 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
+import application.constance.AppConstance;
+
 
 public class MapViewActivity extends FragmentActivity
         implements
@@ -35,20 +44,20 @@ public class MapViewActivity extends FragmentActivity
     private GoogleMap mMap;
     private LocationManager locationManager;
     private FloatingActionButton btnUserLocation, btnBusLocation;
-    private double latitude, longitude, factoryLatitude, factoryLogtitude;
+    private double latitude, longitude;
     private LatLng currentLocation;
     private LatLng factoryLocation;
     private TelephonyManager telephonyManager;
     private float[] results;
+    private GoogleApiClient googleApiClient;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_map_view);
-        factoryLatitude = 6.868651663190283;
-        factoryLogtitude = 80.06198644888059;
-        factoryLocation = new LatLng(factoryLatitude, factoryLogtitude);
+
+        factoryLocation = new LatLng(AppConstance.factoryLatitude, AppConstance.factoryLogtitude);
         telephonyManager = (TelephonyManager) getSystemService(Context.
                 TELEPHONY_SERVICE);
         final String deviceId = telephonyManager.getSubscriberId();
@@ -58,19 +67,26 @@ public class MapViewActivity extends FragmentActivity
         btnUserLocation.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                LatLng currentLocation = new LatLng(latitude, longitude);
-                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLocation, 15.2f), 1000, null);
-                mMap.clear();
-                mMap.addMarker(new MarkerOptions()
-                        .position(currentLocation)
-                );
-                FirebaseDatabase database = FirebaseDatabase.getInstance();
-                DatabaseReference myRef = database.getReference("userCoordinates");
-                myRef.child(deviceId).setValue(currentLocation);
-                Log.i("Location Updated", "UPDATED AND COMMITTED TO FIREBASE");
+                try {
+                    currentLocation = new LatLng(latitude, longitude);
+                    mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLocation, 15.2f), 1000, null);
+                    mMap.clear();
+                    mMap.addMarker(new MarkerOptions()
+                            .position(currentLocation)
+                            .title("This Is You")
+                            .snippet("Approximately " + (results[0] / 1000) + " km s Straight Away from the OREL ZONE")
+                            .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_person_pin_circle_green_600_24dp)));
+                } catch (NullPointerException e) {
+                    Toast.makeText(getApplicationContext(),"Please Wait For The Connection",Toast.LENGTH_LONG).show();
+                    Log.e("Exception Raised", "" + e);
+                }
+
+                catch (Exception e){
+                    Log.e("Exception Raised", "" + e);
+                }
+
             }
         });
-        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
@@ -85,7 +101,7 @@ public class MapViewActivity extends FragmentActivity
             public void onLocationChanged(Location location) {
                 latitude = location.getLatitude();
                 longitude = location.getLongitude();
-                LatLng currentLocation = new LatLng(latitude, longitude);
+                currentLocation = new LatLng(latitude, longitude);
                 results = new float[1];
                 Location.distanceBetween(currentLocation.latitude, currentLocation.longitude,
                         factoryLocation.latitude, factoryLocation.longitude,
@@ -107,18 +123,22 @@ public class MapViewActivity extends FragmentActivity
 
             @Override
             public void onStatusChanged(String s, int i, Bundle bundle) {
-
             }
 
             @Override
             public void onProviderEnabled(String s) {
-
+                AppConstance.GPS_STATE = true;
+                Toast toast = Toast.makeText(getApplicationContext(), "GPS ENABLED", Toast.LENGTH_SHORT);
+                toast.show();
             }
 
             @Override
             public void onProviderDisabled(String s) {
-
+                AppConstance.GPS_STATE = false;
+                Toast toast = Toast.makeText(getApplicationContext(), "GPS DISABLED", Toast.LENGTH_SHORT);
+                toast.show();
             }
+
         };
 
         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
@@ -160,4 +180,6 @@ public class MapViewActivity extends FragmentActivity
             FirebaseDatabase.getInstance().goOnline();
         }
     }
+
+
 }
